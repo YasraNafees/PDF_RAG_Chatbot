@@ -1,92 +1,102 @@
-# PDF Question Answering Chatbot  
+# 📚 PDF RAG Chatbot
 
-This project is a **PDF-based Question Answering Chatbot** built using **LangChain**, **FAISS**, **Hugging Face Embeddings**, and **OpenRouter LLMs**.  
-It allows you to upload a PDF (e.g., *AI Foundations of Computational Agents*) and ask natural language questions.  
-The system retrieves relevant chunks from the PDF and uses a Large Language Model to answer.  
+![Python](https://img.shields.io/badge/Python-3.10+-blue) ![LangChain](https://img.shields.io/badge/LangChain-Enabled-green) ![FAISS](https://img.shields.io/badge/FAISS-VectorStore-blue) ![DeepSeek](https://img.shields.io/badge/DeepSeek-v3.1-red) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
----
+### SHA256 Fingerprinting | Smart Index Caching | Streaming Responses
 
-## 🚀 Features  
-- Load and index any PDF into a vector database.  
-- Uses **FAISS** for fast similarity search.  
-- Embeds text with **sentence-transformers/all-MiniLM-L6-v2**.  
-- Queries handled by **DeepSeek Chat (via OpenRouter)**.  
-- Streaming responses for real-time answers.  
-- Supports caching of PDF embeddings for efficiency.  
+A RAG-powered chatbot that lets you have intelligent conversations with any PDF document. Built with smart index caching via SHA256 fingerprinting — if the same PDF is loaded again, it skips re-indexing entirely and loads instantly.
 
 ---
 
-## 📂 Project Structure  
+## 🎬 Demo
+
+[![Watch Demo](https://img.youtube.com/vi/yg0Zn1DVod8/maxresdefault.jpg)](https://youtu.be/yg0Zn1DVod8)
+
+> Click the thumbnail to watch the full demo on YouTube.
+
+---
+
+## ✨ Key Features
+
+- **SHA256 Index Fingerprinting:** Generates a unique hash per PDF based on content, chunk size, overlap, and embedding model — identical documents are never re-indexed.
+- **Smart Cache System:** FAISS index persists locally under `.indices/` — instant load on repeated use.
+- **Zero Hallucination:** Strict system prompt ensures answers come only from PDF context — never fabricated.
+- **Streaming Responses:** Real-time token-by-token output via LangChain streaming callbacks.
+- **Modular Pipeline:** Clean separation of backend (RAG pipeline) and frontend (Streamlit UI).
+- **Chat History:** Full conversation memory within session via Streamlit state management.
+
+---
+
+## 🛠️ Tech Stack & Design Decisions
+
+| Component | Tool | Why |
+|---|---|---|
+| Orchestration | LangChain | Modular RAG pipeline with RunnableParallel |
+| LLM | DeepSeek v3.1 via OpenRouter | Free tier, high-quality reasoning |
+| Embeddings | all-MiniLM-L6-v2 | Lightweight, high semantic accuracy |
+| Vector Store | FAISS | Fast local retrieval, no cloud dependency |
+| PDF Loader | PyMuPDF | Reliable text extraction from complex PDFs |
+| UI | Streamlit | Lightweight chat interface with streaming support |
+
+---
+
+## 🏗️ Architecture Flow
 ```
-.
-├── app.py              # Entry point (frontend or API server)
-├── backend.py          # Core logic: PDF loading, splitting, embeddings, vector store, LLM pipeline
-├── requirements.txt    # Python dependencies
-├── .env                # Environment variables (API keys, base URLs)
-├── venv/               # Virtual environment
-├── .indices/           # Cached vectorstore indices
-├── __pycache__/        # Python cache
-└── AI Foundations of Computational Agents 3rd Ed.pdf  # Example PDF
+PDF Document
+      ↓
+SHA256 Fingerprint Check
+      ↓
+Cache Hit? → Load FAISS Index Instantly
+Cache Miss? → PyMuPDF Loader → Text Splitter (1000 chars, 200 overlap)
+      ↓
+HuggingFace Embeddings (all-MiniLM-L6-v2)
+      ↓
+FAISS Vector Store (Persisted locally)
+      ↓
+User Query → Top-4 Similarity Retrieval
+      ↓
+DeepSeek v3.1 → Streaming Answer
+      ↓
+Streamlit Chat UI
 ```
 
 ---
 
-## ⚙️ Setup Instructions  
+## 🚀 Quick Start
 
-### 1. Clone the repository  
+**1. Clone the repo:**
 ```bash
-git clone https://github.com/your-username/pdf-chatbot.git
-cd pdf-chatbot
+git clone https://github.com/YasraNafees/PDF-RAG-Chatbot.git
+cd PDF-RAG-Chatbot
 ```
 
-### 2. Create a virtual environment  
-```bash
-python -m venv venv
-source venv/bin/activate   # On Linux/Mac
-venv\Scripts\activate      # On Windows
-```
-
-### 3. Install dependencies  
+**2. Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Add environment variables  
-Create a **.env** file in the project root:  
-```env
-OPENROUTER_API_KEY=your_api_key_here
+**3. Set environment variables:**
+
+Create a `.env` file:
+```
+OPENROUTER_API_KEY=your_key_here
 OPENROUTER_API_BASE=https://openrouter.ai/api/v1
 ```
 
-### 5. Run the app  
-If `app.py` starts the chatbot:  
-```bash
-python app.py
-```
+**4. Add your PDF:**
 
----
-
-## 🧠 How It Works  
-1. **PDF Loader** → Splits PDF into chunks.  
-2. **Embeddings** → Converts chunks into vectors using Hugging Face.  
-3. **Vector Store (FAISS)** → Stores and retrieves relevant chunks.  
-4. **LLM (DeepSeek via OpenRouter)** → Answers user queries with context.  
-5. **Streaming** → Sends tokens back as they are generated.  
-
----
-
-## 📌 Example Usage  
+Place your PDF in the root directory and update `PDF_PATH` in `backend.py`:
 ```python
-from backend import setup_pipeline_and_query
+PDF_PATH = "your_document.pdf"
+```
 
-for token in setup_pipeline_and_query(
-    pdf_path="AI Foundations of Computational Agents 3rd Ed.pdf",
-    question="What is an intelligent agent?"
-):
-    print(token, end="")
+**5. Run the app:**
+```bash
+streamlit run app.py
 ```
 
 ---
 
-## 📜 License  
-MIT License – feel free to use and modify.  
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
